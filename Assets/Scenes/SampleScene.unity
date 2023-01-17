@@ -246,15 +246,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isDebugEnabled: 1
   carRigidBody: {fileID: 208936253}
-  springStrength: 200
-  springDamper: 15
-  suspensionResDistance: 0.4
-  tireGripFactor: 0.5
+  springStrength: 250
+  springDamper: 50
+  suspensionResDistance: 0.5
   tireRollingFriction: 0.5
   tireMass: 0.5
-  maxAngleRotationInDegrees: 33
-  maxSpeed: 10
-  enginePower: 50
+  maxAngleRotationInDegrees: 20
+  maxSpeed: 15
+  enginePower: 45
   enginePowerCurve:
     serializedVersion: 2
     m_Curve:
@@ -297,6 +296,81 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  frontTireSteeringFactor:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.9
+      inSlope: 0.15348111
+      outSlope: 0.15348111
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.95913464
+    - serializedVersion: 3
+      time: 0.5
+      value: 0.25
+      inSlope: -0.0020568725
+      outSlope: -0.0020568725
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.57331735
+      outWeight: 0.66947114
+    - serializedVersion: 3
+      time: 1
+      value: 0.25
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  backTireSteeringFactor:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.75
+      inSlope: -0.07502764
+      outSlope: -0.07502764
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.20432691
+    - serializedVersion: 3
+      time: 0.275
+      value: 0.65
+      inSlope: -0.37759876
+      outSlope: -0.37759876
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.99799186
+      outWeight: 0.18074943
+    - serializedVersion: 3
+      time: 0.7
+      value: 0.15
+      inSlope: -0.1703878
+      outSlope: -0.1703878
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 1
+    - serializedVersion: 3
+      time: 1
+      value: 0.1
+      inSlope: -0.16666667
+      outSlope: -0.16666667
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   frontLeftTire: {fileID: 1976966869}
   frontRightTire: {fileID: 544934796}
   backLeftTire: {fileID: 1408264457}
@@ -309,7 +383,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 208936247}
   serializedVersion: 2
-  m_Mass: 10
+  m_Mass: 20
   m_Drag: 0.1
   m_AngularDrag: 0.25
   m_UseGravity: 1

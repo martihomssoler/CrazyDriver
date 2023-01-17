@@ -11,13 +11,14 @@ public class CarPhysics : MonoBehaviour
     [SerializeField] private float springStrength = 100f;
     [SerializeField] private float springDamper = 15f;
     [SerializeField] private float suspensionResDistance = 0.5f;
-    [SerializeField] private float tireGripFactor = 0.5f;
     [SerializeField] private float tireRollingFriction = 0.15f;
     [SerializeField] private float tireMass = 0.5f;
     [SerializeField] private float maxAngleRotationInDegrees = 33f;
     [SerializeField] private float maxSpeed = 25f;
     [SerializeField] private float enginePower = 75f;
     [SerializeField] private AnimationCurve enginePowerCurve;
+    [SerializeField] private AnimationCurve frontTireSteeringFactor;
+    [SerializeField] private AnimationCurve backTireSteeringFactor;
     [SerializeField] private Transform frontLeftTire;
     [SerializeField] private Transform frontRightTire;
     [SerializeField] private Transform backLeftTire;
@@ -47,14 +48,13 @@ public class CarPhysics : MonoBehaviour
 
     private void FixedUpdate()
     {
-        CalculateAllTireForces(frontLeftTire, true, true, true);
-        CalculateAllTireForces(frontRightTire, true, true, true);
-        CalculateAllTireForces(backLeftTire, true, true, false);
-        CalculateAllTireForces(backRightTire, true, true, false);
+        CalculateAllTireForces(frontLeftTire, true);
+        CalculateAllTireForces(frontRightTire, true);
+        CalculateAllTireForces(backLeftTire, false);
+        CalculateAllTireForces(backRightTire, false);
     }
 
-    private void CalculateAllTireForces(Transform tireTransform, bool suspensionEnabled,
-        bool steeringEnabled, bool torqueEnabled)
+    private void CalculateAllTireForces(Transform tireTransform, bool isFrontTire)
     {
         var down = tireTransform.TransformDirection(Vector3.down);
         var rayDidHit = Physics.Raycast(tireTransform.position, 2 * down * suspensionResDistance,
@@ -64,9 +64,9 @@ public class CarPhysics : MonoBehaviour
         if (!rayDidHit) return;
 
         var tireWorldVelocity = carRigidBody.GetPointVelocity(tireTransform.position);
-        if (suspensionEnabled) CalculateTireSuspension(tireTransform, tireWorldVelocity, wheelRaycastHit);
-        if (steeringEnabled) CalculateTireSteering(tireTransform, tireWorldVelocity);
-        if (torqueEnabled) CalculateTireAcceleration(tireTransform);
+        CalculateTireSuspension(tireTransform, tireWorldVelocity, wheelRaycastHit);
+        CalculateTireSteering(tireTransform, tireWorldVelocity, isFrontTire);
+        CalculateTireAcceleration(tireTransform);
     }
 
 
@@ -88,7 +88,7 @@ public class CarPhysics : MonoBehaviour
         carRigidBody.AddForceAtPosition(springDirection * force, tireTransform.position);
     }
 
-    private void CalculateTireSteering(Transform tireTransform, Vector3 tireWorldVelocity)
+    private void CalculateTireSteering(Transform tireTransform, Vector3 tireWorldVelocity, bool isFrontTire)
     {
         // world-space direction of the steering force
         var steeringDirection = tireTransform.right;
@@ -96,9 +96,18 @@ public class CarPhysics : MonoBehaviour
         // note that steeringDirection is a unit vector, so this returns the magnitude of
         // wheelWorldVelocity as projected onto steeringDirection
         float steeringVelocity = Vector3.Dot(steeringDirection, tireWorldVelocity);
+        // normalized car speed
+        float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(steeringVelocity) / maxSpeed);
+        // steering factor of the tire based on current velocity and tire position (back/front)
+        float steeringFactor = (isFrontTire) ?
+            frontTireSteeringFactor.Evaluate(Mathf.Abs(normalizedSpeed)) :
+            backTireSteeringFactor.Evaluate(Mathf.Abs(normalizedSpeed));
+
+        if (isFrontTire) Debug.Log($"Front Tire: {steeringFactor}");
+        else Debug.Log($"Back Tire: {steeringFactor}");
         // the change in velocity that we're looking for is -steeringVelocity * gripFactor
         // gripFactor is in range 0-1, being 1 full grip and 0 no grip at all
-        float desiredVelocityChange = -steeringVelocity * tireGripFactor;
+        float desiredVelocityChange = -steeringVelocity * steeringFactor;//frontTireSteeringFactor;
         // turn change in velocity into an acceleration (acceleration = change in vel / time)
         // this will produce the acceleration necessary to change the velocity by 
         // desiredVelocityChange in 1 physics step
