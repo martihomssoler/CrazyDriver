@@ -12,6 +12,7 @@ public class CarPhysics : MonoBehaviour
     [SerializeField] private float springDamper = 15f;
     [SerializeField] private float suspensionResDistance = 0.5f;
     [SerializeField] private float tireGripFactor = 0.5f;
+    [SerializeField] private float tireRollingFriction = 0.15f;
     [SerializeField] private float tireMass = 0.5f;
     [SerializeField] private float maxAngleRotationInDegrees = 33f;
     [SerializeField] private float maxSpeed = 25f;
@@ -114,12 +115,30 @@ public class CarPhysics : MonoBehaviour
         var accelerationDirection = tireTransform.forward;
         // forward speed of the car (in the direction of driving)
         float carSpeed = Vector3.Dot(accelerationDirection, carRigidBody.velocity);
-        // normalized car speed
-        float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(carSpeed) / maxSpeed);
-        // if we are going at full speed, we do not apply any forces
-        if (normalizedSpeed > 0.99f) return;
-        // available torque
-        float availableTorque = enginePowerCurve.Evaluate(normalizedSpeed) * accelerationInput;
+        float availableTorque = 0f;
+
+        if (accelerationInput > 0.0f)
+        {
+            // normalized car speed
+            float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(carSpeed) / maxSpeed);
+            // if we are going at full speed, we do not apply any forces
+            if (normalizedSpeed > 0.99f) return;
+            // available torque
+            availableTorque = enginePowerCurve.Evaluate(normalizedSpeed) * accelerationInput;
+        }
+        else if (accelerationInput == 0f)
+        {
+            float speedSign = Mathf.Sign(carSpeed);
+            if (Mathf.Abs(carSpeed) >= 0.1f) availableTorque = -speedSign * tireRollingFriction;
+            else carRigidBody.velocity = Vector3.zero;
+
+        }
+        else
+        {
+            float speedSign = Mathf.Sign(carSpeed);
+            if (speedSign > 0f) availableTorque = -1f;
+            else availableTorque = -0.25f;
+        }
 
         carRigidBody.AddForceAtPosition(accelerationDirection * enginePower * availableTorque,
             tireTransform.position);
