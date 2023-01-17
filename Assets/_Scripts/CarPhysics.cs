@@ -13,11 +13,17 @@ public class CarPhysics : MonoBehaviour
     [SerializeField] private float suspensionResDistance = 0.5f;
     [SerializeField] private float tireGripFactor = 0.5f;
     [SerializeField] private float tireMass = 0.5f;
-    [SerializeField] private float maxTirenAngleRotationInDegrees = 33f;
+    [SerializeField] private float maxAngleRotationInDegrees = 33f;
+    [SerializeField] private float maxSpeed = 25f;
+    [SerializeField] private float enginePower = 75f;
+    [SerializeField] private AnimationCurve enginePowerCurve;
     [SerializeField] private Transform frontLeftTire;
     [SerializeField] private Transform frontRightTire;
     [SerializeField] private Transform backLeftTire;
     [SerializeField] private Transform backRightTire;
+
+    private float accelerationInput;
+    private float rotationInput;
 
     private void OnValidate()
     {
@@ -26,16 +32,16 @@ public class CarPhysics : MonoBehaviour
 
     private void Update()
     {
-        var gasAndBreak = Input.GetAxis("Vertical");
-        var inputRotation = Input.GetAxis("Horizontal");
+        accelerationInput = Input.GetAxis("Vertical");
+        rotationInput = Input.GetAxis("Horizontal");
 
-        Debug.Log(inputRotation);
+        // Debug.Log($"{accelerationInput} : {rotationInput}");
 
         frontLeftTire.forward = carRigidBody.transform.forward;
         frontRightTire.forward = carRigidBody.transform.forward;
 
-        frontLeftTire.localRotation = Quaternion.Euler(0f, maxTirenAngleRotationInDegrees * inputRotation, 0f);
-        frontRightTire.localRotation = Quaternion.Euler(0f, maxTirenAngleRotationInDegrees * inputRotation, 0f);
+        frontLeftTire.localRotation = Quaternion.Euler(0f, maxAngleRotationInDegrees * rotationInput, 0f);
+        frontRightTire.localRotation = Quaternion.Euler(0f, maxAngleRotationInDegrees * rotationInput, 0f);
     }
 
     private void FixedUpdate()
@@ -59,6 +65,7 @@ public class CarPhysics : MonoBehaviour
         var tireWorldVelocity = carRigidBody.GetPointVelocity(tireTransform.position);
         if (suspensionEnabled) CalculateTireSuspension(tireTransform, tireWorldVelocity, wheelRaycastHit);
         if (steeringEnabled) CalculateTireSteering(tireTransform, tireWorldVelocity);
+        if (torqueEnabled) CalculateTireAcceleration(tireTransform);
     }
 
 
@@ -98,6 +105,23 @@ public class CarPhysics : MonoBehaviour
 
         // Force = Mass * Acceleration
         carRigidBody.AddForceAtPosition(steeringDirection * tireMass * desiredAcceleration,
+            tireTransform.position);
+    }
+
+    private void CalculateTireAcceleration(Transform tireTransform)
+    {
+        // world-space direction of the torque force
+        var accelerationDirection = tireTransform.forward;
+        // forward speed of the car (in the direction of driving)
+        float carSpeed = Vector3.Dot(accelerationDirection, carRigidBody.velocity);
+        // normalized car speed
+        float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(carSpeed) / maxSpeed);
+        // if we are going at full speed, we do not apply any forces
+        if (normalizedSpeed > 0.99f) return;
+        // available torque
+        float availableTorque = enginePowerCurve.Evaluate(normalizedSpeed) * accelerationInput;
+
+        carRigidBody.AddForceAtPosition(accelerationDirection * enginePower * availableTorque,
             tireTransform.position);
     }
 }

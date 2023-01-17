@@ -221,7 +221,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 208936247}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 3.84, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -251,7 +251,51 @@ MonoBehaviour:
   suspensionResDistance: 0.4
   tireGripFactor: 0.5
   tireMass: 0.5
-  maxTirenAngleRotationInDegrees: 33
+  maxAngleRotationInDegrees: 33
+  maxSpeed: 25
+  enginePower: 75
+  enginePowerCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0.0000010174699
+      value: 0.49999738
+      inSlope: 0.00004848996
+      outSlope: 0.00004848996
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.16227189
+    - serializedVersion: 3
+      time: 0.33330283
+      value: 0.97376466
+      inSlope: 0.26397225
+      outSlope: 0.26397225
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.25628403
+    - serializedVersion: 3
+      time: 0.6661092
+      value: 0.9954533
+      inSlope: -0.12631878
+      outSlope: -0.12631878
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.5632305
+    - serializedVersion: 3
+      time: 1
+      value: 0.375
+      inSlope: 0.08009238
+      outSlope: 0.08009238
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.1763882
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   frontLeftTire: {fileID: 1976966869}
   frontRightTire: {fileID: 544934796}
   backLeftTire: {fileID: 1408264457}
@@ -898,7 +942,7 @@ Transform:
   m_GameObject: {fileID: 1625467641}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 10, y: 1, z: 10}
+  m_LocalScale: {x: 20, y: 1, z: 20}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
